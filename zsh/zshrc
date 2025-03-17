@@ -1,0 +1,26 @@
+zmodload zsh/zprof # 加载 zsh 性能分析模块
+
+source $ZDOTDIR/envs.zsh
+source $ZDOTDIR/alias.zsh
+source $ZDOTDIR/proxy.zsh
+source $ZDOTDIR/omz.zsh
+
+# conda
+find_dir=(/opt $HOME)
+for dir in ${find_dir[@]}; do
+    [ ! -e "$dir" ] && continue
+    conda_path=$(find "$dir" -maxdepth 1 -type d -name "*conda*" -not -name ".*")/etc/profile.d/conda.sh
+    [ -e "$conda_path" ] && source $conda_path && break
+done
+unset conda_path find_dir dir
+
+bindkey '^U' backward-kill-line # Ctrl+U 删除光标之前的所有字符
+
+# 判断终端是否为tty环境如果是则使用ascii字符，否则使用unicode字符
+if [ $TERM = "linux" ]; then
+    [[ ! -f $ZDOTDIR/.p10k_ascii.zsh ]] || source $ZDOTDIR/.p10k_ascii.zsh
+else
+    [[ ! -f $ZDOTDIR/.p10k_unicode.zsh ]] || source $ZDOTDIR/.p10k_unicode.zsh
+fi
+
+zprof > $XDG_CACHE_HOME/zsh/zprof.log # 生成 zsh 性能分析报告
