@@ -13,6 +13,10 @@ for dir in ${find_dir[@]}; do
     [ -e "$conda_path" ] && source $conda_path && break
 done
 unset conda_path find_dir dir
+rm -rf $HOME/.conda
+
+# tabby
+precmd () { echo -n "\x1b]1337;CurrentDir=$(pwd)\x07" } # 文件管理器追踪当前目录
 
 bindkey '^U' backward-kill-line # Ctrl+U 删除光标之前的所有字符
 
