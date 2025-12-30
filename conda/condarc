@@ -14,8 +14,3 @@ custom_channels:
   pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
   simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
   deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
-
-envs_dirs:
-  - ${XDG_DATA_HOME}/conda/envs
-pkgs_dirs:
-  - ${XDG_CACHE_HOME}/conda/pkgs

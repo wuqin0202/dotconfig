@@ -10,7 +10,6 @@ export VISUAL=nvim  # 默认编辑器
 export BROWSER=wyeb # 默认浏览器
 
 # conda
-export CONDA_ENVS_DIRS=${XDG_DATA_HOME}/conda/envs # conda-zsh-completion 虚拟环境目录
 export TERMINFO=/usr/share/terminfo # 解决 conda环境下 clear 报错
 
 # zsh

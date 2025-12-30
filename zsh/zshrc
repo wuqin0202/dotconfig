@@ -6,13 +6,7 @@ source $ZDOTDIR/proxy.zsh
 source $ZDOTDIR/omz.zsh
 
 # conda
-find_dir=(/opt $HOME)
-for dir in ${find_dir[@]}; do
-    [ ! -e "$dir" ] && continue
-    conda_path=$(find "$dir" -maxdepth 1 -type d -name "*conda*" -not -name ".*")/etc/profile.d/conda.sh
-    [ -e "$conda_path" ] && source $conda_path && break
-done
-unset conda_path find_dir dir
+source $HOME/miniforge3/etc/profile.d/conda.sh
 rm -rf $HOME/.conda
 
 # tabby
