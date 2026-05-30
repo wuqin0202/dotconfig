@@ -2,6 +2,9 @@ export RUNEWIDTH_EASTASIAN=0
 export FZF_DEFAULT_OPTS="--height 12 --scrollbar=▌▐ --info=inline-right --layout=reverse --history=${XDG_STATE_HOME}/zsh/fzf_history"
 export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build,dist,vendor} --type f"
 export FZF_PREVIEW_COMMAND='bash $OMZ/lib/file_preview.sh {}'
+export ZSH_FZF_HISTORY_SEARCH_REMOVE_DUPLICATES=1
+export ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH=0
+export ZSH_FZF_HISTORY_SEARCH_EVENT_NUMBERS=0
 
 zstyle ':completion:complete:*:options' sort false
 zstyle ':fzf-tab:complete:_zlua:*' query-string input

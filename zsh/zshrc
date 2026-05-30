@@ -1,4 +1,6 @@
-zmodload zsh/zprof # 加载 zsh 性能分析模块
+if [[ -n "${ZPROF:-}" ]]; then
+    zmodload zsh/zprof # 加载 zsh 性能分析模块
+fi
 
 source $ZDOTDIR/envs.zsh
 source $ZDOTDIR/alias.zsh
@@ -21,4 +23,6 @@ else
     [[ ! -f $ZDOTDIR/.p10k_unicode.zsh ]] || source $ZDOTDIR/.p10k_unicode.zsh
 fi
 
-zprof > $XDG_CACHE_HOME/zsh/zprof.log # 生成 zsh 性能分析报告
+if [[ -n "${ZPROF:-}" ]]; then
+    zprof > $XDG_CACHE_HOME/zsh/zprof.log # 生成 zsh 性能分析报告
+fi
