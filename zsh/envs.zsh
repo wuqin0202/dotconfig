@@ -8,12 +8,17 @@ export XDG_STATE_HOME=$HOME/.local/state # 程序状态文件
 export EDITOR=nvim  # 默认编辑器
 
 # conda
-export TERMINFO=/usr/share/terminfo # 解决 conda环境下 clear 报错
+# export TERMINFO=/usr/share/terminfo # 解决 conda环境下 clear 报错
 
 # zsh
 export HISTFILE=${XDG_STATE_HOME}/zsh/zsh_history # zsh 历史命令记录
-export _ZL_DATA=${XDG_STATE_HOME}/zsh/zlua # zlua 数据文件
-export OMZ=${XDG_DATA_HOME}/omz # oh-my-zsh 目录
+HISTSIZE=100000
+SAVEHIST=100000
+setopt append_history
+setopt inc_append_history
+setopt hist_ignore_dups
+setopt hist_ignore_space
+setopt hist_reduce_blanks
 
 # go
 export GOPATH=${XDG_DATA_HOME}/go # go get 下载的包的位置
@@ -85,5 +90,5 @@ if [[ "$(uname)" == "Darwin" ]]; then
     export HOMEBREW_API_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles/api  #ckbrew
     export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles #ckbrew
     eval $(/opt/homebrew/bin/brew shellenv) #ckbrew
-    # export HOMEBREW_NO_INSTALL_FROM_API=1 # 走本地homebrew/cask
+    export HOMEBREW_NO_INSTALL_FROM_API=1 # 走本地homebrew/cask
 fi

@@ -3,8 +3,7 @@
 init_dirs() {
     # 创建各环境变量的目录
     mkdir -p ${XDG_CONFIG_HOME} ${XDG_CACHE_HOME} ${XDG_DATA_HOME} ${XDG_STATE_HOME} # 创建 XDG 目录
-    mkdir -p ${CONDA_ENVS_DIRS} # conda 有关目录
-    mkdir -p ${HISTFILE%/*} ${_ZL_DATA%/*} # zsh 有关目录
+    mkdir -p ${HISTFILE%/*} # zsh 历史命令目录
     mkdir -p ${XDG_DATA_HOME}/npm ${XDG_CACHE_HOME}/npm # npm 有关目录
     mkdir -p ${GOPATH} ${GOBIN} ${_JAVA_OPTIONS#*=} ${GNUPGHOME} ${CARGO_HOME} # 其他程序
     if [ ! -e "$XDG_STATE_HOME/python/history" ]; then
@@ -15,84 +14,49 @@ init_dirs() {
 }
 
 init_zsh() {
-    # 下载 ohmyzsh
-    omz_git_url="https://github.com/ohmyzsh/ohmyzsh.git"
-    if [ -n $OMZ ]; then
-        if [ -e $OMZ ]; then
-            echo -n "OMZ 已经存在，是否覆盖？(y/[n]) ："
-            read answer
-            if [ "$answer" = "y" ]; then
-                trash $OMZ
-                git clone $omz_git_url $OMZ
-                cp zsh/file_preview.sh zsh/img_preview.sh $OMZ/lib
-            fi
-        else
-            git clone $omz_git_url $OMZ
-            cp zsh/file_preview.sh zsh/img_preview.sh $OMZ/lib
-        fi
-    else
-        echo "OMZ 环境变量不存在！"
-        exit 1
+    ZDOTDIR=$HOME/.config/zsh
+    local os_name=$(uname -s)
+
+    # 复制 zsh 配置文件
+    [[ -e $ZDOTDIR ]] && trash $ZDOTDIR
+    cp -r zsh $ZDOTDIR
+
+    # 安装 zinit（在线从 GitHub 克隆）
+    zinit_home=$XDG_DATA_HOME/zinit/zinit.git
+    if [[ ! -e $zinit_home ]]; then
+        mkdir -p $(dirname $zinit_home)
+        git clone https://github.com/zdharma-continuum/zinit.git $zinit_home
     fi
 
-    # 创建 ZDOTDIR 变量指定 zsh 配置配件路径
-    if [ -z $ZDOTDIR ]; then
-        ZDOTDIR=$HOME/.config/zsh
-        echo -n "是否对所有用户有效（需要root权限）？(y/[n])："
-        read answer
-        if [ "$answer" = "y" ]; then
-            echo "写入 ZDOTDIR 环境变量到 /etc/zsh/zshenv···"
-            if [ $EUID -eq 0 ]; then
-                echo "export ZDOTDIR=$ZDOTDIR" >> /etc/zsh/zshenv
-            else
-                echo "export ZDOTDIR=$ZDOTDIR" | sudo tee -a /etc/zsh/zshenv > /dev/null
-            fi
-        else
-            echo "写入 ZDOTDIR 环境变量到 $HOME/.zshenv···"
-            echo "export ZDOTDIR=$ZDOTDIR" >> $HOME/.zshenv
+    # 安装 starship
+    if ! command -v starship > /dev/null 2>&1; then
+        if [[ "$os_name" == "Darwin" ]]; then
+            brew install starship
+        elif [[ "$os_name" == "Linux" ]]; then
+            curl -sS https://starship.rs/install.sh | sh -s -- -b ~/.local/bin
         fi
     fi
 
-    # 安装 zsh 插件
-    omz_plugin_path=$OMZ/custom/plugins
-    if [ ! -e $omz_plugin_path/fzf-tab ]; then
-        echo "克隆 fzf-tab 插件···"
-        git clone https://github.com/Aloxaf/fzf-tab $omz_plugin_path/fzf-tab
-    fi
-    if [ ! -e $omz_plugin_path/zsh-fzf-history-search ]; then
-        echo "克隆 zsh-fzf-history-search"
-        git clone https://github.com/joshskidmore/zsh-fzf-history-search.git $omz_plugin_path/zsh-fzf-history-search
+    # 安装 zoxide
+    if ! command -v zoxide > /dev/null 2>&1; then
+        if [[ "$os_name" == "Darwin" ]]; then
+            brew install zoxide
+        elif [[ "$os_name" == "Linux" ]]; then
+            curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |
+                sh -s -- \
+                    --bin-dir ~/.local/bin \
+                    --man-dir ~/.local/share/man
+        fi
     fi
 
-    if [ ! -e $omz_plugin_path/z.lua ]; then
-        echo "克隆 z.lua 插件···"
-        git clone https://github.com/skywind3000/z.lua.git $omz_plugin_path/z.lua
-    fi
-    if [ ! -e $omz_plugin_path/zsh-autosuggestions ]; then
-        echo "克隆 zsh-autosuggestions 插件···"
-        git clone https://github.com/zsh-users/zsh-autosuggestions $omz_plugin_path/zsh-autosuggestions
-    fi
-    if [ ! -e $omz_plugin_path/zsh-completions ]; then
-        echo "克隆 zsh-completions 插件···"
-        git clone https://github.com/zsh-users/zsh-completions $omz_plugin_path/zsh-completions
-    fi
-    if [ ! -e $omz_plugin_path/zsh-history-substring-search ]; then
-        echo "克隆 zsh-history-substring-search 插件···"
-        git clone https://github.com/zsh-users/zsh-history-substring-search $omz_plugin_path/zsh-history-substring-search
-    fi
-    if [ ! -e $omz_plugin_path/zsh-syntax-highlighting ]; then
-        echo "克隆 zsh-syntax-highlighting 插件···"
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $omz_plugin_path/zsh-syntax-highlighting
-    fi
-    if [ ! -e $omz_plugin_path/conda-zsh-completion ]; then
-        echo "克隆 conda-zsh-completion"
-        git clone https://github.com/conda-incubator/conda-zsh-completion.git $omz_plugin_path/conda-zsh-completion
-    fi
-    # 安装 zsh 主题
-    omz_plugin_path=$OMZ/custom/themes
-    if [ ! -e $omz_plugin_path/powerlevel10k ]; then
-        echo "克隆 powerlevel10k 主题···"
-        git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git $omz_plugin_path/powerlevel10k
+    # 安装 atuin
+    if ! command -v atuin > /dev/null 2>&1; then
+        if [[ "$os_name" == "Darwin" ]]; then
+            brew install atuin
+        elif [[ "$os_name" == "Linux" ]]; then
+            curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+            mv "$HOME"/.atuin/bin/atuin* "$HOME"/.local/bin/
+        fi
     fi
 }
 
@@ -100,20 +64,22 @@ init_zsh_offline() {
     ZDOTDIR=$HOME/.config/zsh
 
     [[ -e $ZDOTDIR ]] || cp -r zsh $(dirname $ZDOTDIR)
-    [[ -e $OMZ ]] || unzip resources/ohmyzsh-master.zip && mv ohmyzsh-master $OMZ && cp zsh/file_preview.sh zsh/img_preview.sh $OMZ/lib
 
-    omz_plugin_path=$OMZ/custom/plugins
-    [[ -e $omz_plugin_path/fzf-tab ]] || unzip resources/fzf-tab-master.zip && mv fzf-tab-master $omz_plugin_path/fzf-tab
-    [[ -e $omz_plugin_path/zsh-fzf-history-search ]] || unzip resources/zsh-fzf-history-search-master.zip && mv zsh-fzf-history-search-master $omz_plugin_path/zsh-fzf-history-search
-    [[ -e $omz_plugin_path/z.lua ]] || unzip resources/z.lua-master.zip && mv z.lua-master $omz_plugin_path/z.lua
-    [[ -e $omz_plugin_path/zsh-autosuggestions ]] || unzip resources/zsh-autosuggestions-master.zip && mv zsh-autosuggestions-master $omz_plugin_path/zsh-autosuggestions
-    [[ -e $omz_plugin_path/zsh-completions ]] || unzip resources/zsh-completions-master.zip && mv zsh-completions-master $omz_plugin_path/zsh-completions
-    [[ -e $omz_plugin_path/zsh-history-substring-search ]] || unzip resources/zsh-history-substring-search-master.zip && mv zsh-history-substring-search-master $omz_plugin_path/zsh-history-substring-search
-    [[ -e $omz_plugin_path/zsh-syntax-highlighting ]] || unzip resources/zsh-syntax-highlighting-master.zip && mv zsh-syntax-highlighting-master $omz_plugin_path/zsh-syntax-highlighting
-    [[ -e $omz_plugin_path/conda-zsh-completion ]] || unzip resources/conda-zsh-completion-master.zip && mv conda-zsh-completion-master $omz_plugin_path/conda-zsh-completion
+    # 安装 zinit（需要预先下载 zinit 仓库）
+    zinit_home=$XDG_DATA_HOME/zinit/zinit.git
+    if [[ ! -e $zinit_home ]]; then
+        mkdir -p $(dirname $zinit_home)
+        [[ -e resources/zinit-master.zip ]] && unzip resources/zinit-master.zip && mv zinit-master $zinit_home
+    fi
 
-    omz_theme_path=$OMZ/custom/themes
-    [[ -e $omz_theme_path/powerlevel10k ]] || unzip resources/powerlevel10k-master.zip && mv powerlevel10k $omz_theme_path/powerlevel10k
+    # 离线安装 zinit 插件
+    zsh_plugins_dir=$XDG_DATA_HOME/zinit/plugins
+    [[ -e $zsh_plugins_dir/fzf-tab ]] || unzip resources/fzf-tab-master.zip && mv fzf-tab-master $zsh_plugins_dir/fzf-tab
+    [[ -e $zsh_plugins_dir/zsh-autosuggestions ]] || unzip resources/zsh-autosuggestions-master.zip && mv zsh-autosuggestions-master $zsh_plugins_dir/zsh-autosuggestions
+    [[ -e $zsh_plugins_dir/zsh-completions ]] || unzip resources/zsh-completions-master.zip && mv zsh-completions-master $zsh_plugins_dir/zsh-completions
+    [[ -e $zsh_plugins_dir/zsh-syntax-highlighting ]] || unzip resources/zsh-syntax-highlighting-master.zip && mv zsh-syntax-highlighting-master $zsh_plugins_dir/zsh-syntax-highlighting
+    [[ -e $zsh_plugins_dir/conda-zsh-completion ]] || unzip resources/conda-zsh-completion-master.zip && mv conda-zsh-completion-master $zsh_plugins_dir/conda-zsh-completion
+    [[ -e $zsh_plugins_dir/zsh-history-prefix-string-search ]] || unzip resources/zsh-history-prefix-string-search-master.zip && mv zsh-history-prefix-string-search-master $zsh_plugins_dir/zsh-history-prefix-string-search
 }
 
 autoRootExec() {
@@ -163,23 +129,36 @@ updateFile() {
     # 参数：
     # $1: 目标安装路径，文件需存在本目录下
     # $2（可选）：sudo
-    if [ ! -z $1 ]; then
-        if [ ! -z $2 ] && [ "$2" != "sudo" ]; then
+    if [ -n "$1" ]; then
+        if [ -n "$2" ] && [ "$2" != "sudo" ]; then
             echo "第二个参数只能为 sudo，不能为 $2"
             exit 1
         fi
 
-        file=$(echo $1 | sed -E 's#.*/([^/]+)/([^/]+)$#\1/\2#')
-        if [ -e $proj_dir/$file ]; then
+        local target_path="$1"
+        local file
+
+        if [ "$(basename "$target_path")" = "starship.toml" ]; then
+            file="starship.toml"
+        else
+            file=$(echo "$target_path" | sed -E 's#.*/([^/]+)/([^/]+)$#\1/\2#')
+        fi
+
+        if [ ! -e "$proj_dir/$file" ]; then
+            echo "$proj_dir/$file 配置文件不存在！"
+            exit 1
+        fi
+
+        if [ -e "$target_path" ]; then
             echo -n "$1 配置文件已存在，是否覆盖？(y/[n])："
             read answer
             if [ "$answer" = "y" ]; then
-                $2 trash $1
-                $2 cp $proj_dir/$file $1
+                $2 trash "$target_path"
+                $2 cp "$proj_dir/$file" "$target_path"
             fi
         else
-            echo "$1/$file 配置文件不存在，创建···"
-            $2 cp $proj_dir/$file $1
+            echo "$1 配置文件不存在，创建···"
+            $2 cp "$proj_dir/$file" "$target_path"
         fi
     else
         echo "缺少参数，或者参数为空！"
@@ -187,11 +166,6 @@ updateFile() {
 }
 
 updateAll() {
-    # 更新ohmyzsh
-    if [ -e $OMZ ]; then
-        cd $OMZ && git pull && cd -
-    fi
-
     updateDir $ZDOTDIR
     updateDir $XDG_CONFIG_HOME/conda
     updateDir $XDG_CONFIG_HOME/pip
@@ -200,6 +174,9 @@ updateAll() {
     updateDir $XDG_CONFIG_HOME/python
     updateDir $XDG_CONFIG_HOME/nvim
     updateDir $XDG_CONFIG_HOME/git
+
+    # starship 终端提示符配置
+    updateFile $XDG_CONFIG_HOME/starship.toml
 
     [ -n $DISPLAY ] && has_gui="yes" # 有无 GUI
     [ -n $(uname -r | grep -i "wsl") ] && is_wsl="yes" # 是否为 WSL
@@ -237,7 +214,7 @@ case $1 in
         init_dirs && init_zsh_offline
         ;;
     updateFile)
-        updateFile $2
+        updateFile $2 $3
         ;;
     updateDir)
         updateDir $2

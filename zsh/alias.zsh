@@ -7,5 +7,3 @@ alias cec='conda create -n'
 alias cer='conda remove -n'
 alias dea='conda deactivate'
 alias ac='conda activate'
-
-alias clear='/usr/bin/clear' # 防止 conda 环境 clear 报错

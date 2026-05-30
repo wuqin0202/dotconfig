@@ -5,23 +5,42 @@ fi
 source $ZDOTDIR/envs.zsh
 source $ZDOTDIR/alias.zsh
 source $ZDOTDIR/proxy.zsh
-source $ZDOTDIR/omz.zsh
+source $ZDOTDIR/zinit.zsh
+source $ZDOTDIR/fzf.zsh
+eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"
+
+# Starship: transient prompt + no blank line on fresh terminal
+# __starship_first_prompt=true
+# __starship_has_blank_line=false
+# precmd_starship() {
+#     if [[ $__starship_first_prompt == true ]]; then
+#         __starship_first_prompt=false
+#         __starship_has_blank_line=false
+#     else
+#         echo
+#         __starship_has_blank_line=true
+#     fi
+# }
+# preexec_starship() {
+#     if [[ $__starship_has_blank_line == false ]]; then
+#         # No blank line above: only clear the status line
+#         printf '\033[2A\033[2K\033[2B'
+#     else
+#         # Has blank line above: clear blank line + status line, preserve ❯ cmd
+#         printf '\033[3A\033[2K\033[1B\033[2K\033[2B'
+#     fi
+# }
+# precmd_functions+=(precmd_starship)
+# preexec_functions+=(preexec_starship)
 
 # conda
-source $HOME/miniforge3/etc/profile.d/conda.sh
-rm -rf $HOME/.conda
-
-# tabby
-precmd () { echo -n "\x1b]1337;CurrentDir=$(pwd)\x07" } # 文件管理器追踪当前目录
+[[ -f $HOME/miniforge3/etc/profile.d/conda.sh ]] && source $HOME/miniforge3/etc/profile.d/conda.sh
+[[ -d $HOME/.conda ]] && rm -rf $HOME/.conda
 
 bindkey '^U' backward-kill-line # Ctrl+U 删除光标之前的所有字符
-
-# 判断终端是否为tty环境如果是则使用ascii字符，否则使用unicode字符
-if [ $TERM = "linux" ]; then
-    [[ ! -f $ZDOTDIR/.p10k_ascii.zsh ]] || source $ZDOTDIR/.p10k_ascii.zsh
-else
-    [[ ! -f $ZDOTDIR/.p10k_unicode.zsh ]] || source $ZDOTDIR/.p10k_unicode.zsh
-fi
+(( $+functions[_history_substring_search_config] )) && _history_substring_search_config
 
 if [[ -n "${ZPROF:-}" ]]; then
     zprof > $XDG_CACHE_HOME/zsh/zprof.log # 生成 zsh 性能分析报告
