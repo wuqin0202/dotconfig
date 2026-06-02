@@ -2,6 +2,9 @@ if [[ -n "${ZPROF:-}" ]]; then
     zmodload zsh/zprof # 加载 zsh 性能分析模块
 fi
 
+bindkey -e
+bindkey '^U' backward-kill-line # Ctrl+U 删除光标之前的所有字符
+
 source $ZDOTDIR/envs.zsh
 source $ZDOTDIR/alias.zsh
 source $ZDOTDIR/proxy.zsh
@@ -40,8 +43,6 @@ atuin config set db_path "$ATUIN_DB_PATH"
 [[ -f $HOME/miniforge3/etc/profile.d/conda.sh ]] && source $HOME/miniforge3/etc/profile.d/conda.sh
 [[ -d $HOME/.conda ]] && rm -rf $HOME/.conda
 
-bindkey -e
-bindkey '^U' backward-kill-line # Ctrl+U 删除光标之前的所有字符
 (( $+functions[_history_substring_search_config] )) && _history_substring_search_config
 
 if [[ -n "${ZPROF:-}" ]]; then
