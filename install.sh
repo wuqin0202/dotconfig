@@ -183,6 +183,8 @@ updateFile() {
 
 updateAll() {
     updateDir $ZDOTDIR
+    updateDir $XDG_CONFIG_HOME/fish
+    updateDir $XDG_CONFIG_HOME/atuin
     updateDir $XDG_CONFIG_HOME/conda
     updateDir $XDG_CONFIG_HOME/pip
     updateDir $XDG_CONFIG_HOME/wget
@@ -190,7 +192,6 @@ updateAll() {
     updateDir $XDG_CONFIG_HOME/python
     updateDir $XDG_CONFIG_HOME/nvim
     updateDir $XDG_CONFIG_HOME/git
-    updateDir $XDG_CONFIG_HOME/fish
 
     # starship 终端提示符配置
     updateFile $XDG_CONFIG_HOME/starship.toml

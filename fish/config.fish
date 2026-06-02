@@ -24,6 +24,7 @@ end
 # ============================ atuin ============================
 if command -v atuin >/dev/null 2>&1
     atuin init fish --disable-up-arrow | source
+    atuin config set db_path "$ATUIN_DB_PATH"
 end
 
 # ============================ conda ============================
