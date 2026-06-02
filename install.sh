@@ -4,6 +4,7 @@ init_dirs() {
     # 创建各环境变量的目录
     mkdir -p ${XDG_CONFIG_HOME} ${XDG_CACHE_HOME} ${XDG_DATA_HOME} ${XDG_STATE_HOME} # 创建 XDG 目录
     mkdir -p ${HISTFILE%/*} # zsh 历史命令目录
+    mkdir -p ${XDG_DATA_HOME}/atuin # atuin 历史数据库目录
     mkdir -p ${XDG_DATA_HOME}/npm ${XDG_CACHE_HOME}/npm # npm 有关目录
     mkdir -p ${GOPATH} ${GOBIN} ${_JAVA_OPTIONS#*=} ${GNUPGHOME} ${CARGO_HOME} # 其他程序
     if [ ! -e "$XDG_STATE_HOME/python/history" ]; then
@@ -58,6 +59,21 @@ init_zsh() {
             mv "$HOME"/.atuin/bin/atuin* "$HOME"/.local/bin/
         fi
     fi
+}
+
+init_fish() {
+    local fish_conf_dir=$XDG_CONFIG_HOME/fish
+    local os_name=$(uname -s)
+
+    # 复制 fish 配置文件
+    [[ -e $fish_conf_dir ]] && trash $fish_conf_dir
+    cp -r fish $fish_conf_dir
+}
+
+init_fish_offline() {
+    local fish_conf_dir=$XDG_CONFIG_HOME/fish
+
+    [[ -e $fish_conf_dir ]] || cp -r fish $(dirname $fish_conf_dir)
 }
 
 init_zsh_offline() {
@@ -174,6 +190,7 @@ updateAll() {
     updateDir $XDG_CONFIG_HOME/python
     updateDir $XDG_CONFIG_HOME/nvim
     updateDir $XDG_CONFIG_HOME/git
+    updateDir $XDG_CONFIG_HOME/fish
 
     # starship 终端提示符配置
     updateFile $XDG_CONFIG_HOME/starship.toml
@@ -208,10 +225,22 @@ fi
 
 case $1 in
     init)
-        init_dirs && init_zsh
+        init_dirs && init_zsh && init_fish
         ;;
     initOffline)
+        init_dirs && init_zsh_offline && init_fish_offline
+        ;;
+    initZsh)
+        init_dirs && init_zsh
+        ;;
+    initZshOffline)
         init_dirs && init_zsh_offline
+        ;;
+    initFish)
+        init_dirs && init_fish
+        ;;
+    initFishOffline)
+        init_dirs && init_fish_offline
         ;;
     updateFile)
         updateFile $2 $3
@@ -223,6 +252,6 @@ case $1 in
         updateAll
         ;;
     *)
-        init_dirs && init_zsh && updateAll
+        init_dirs && init_zsh && init_fish && updateAll
         ;;
 esac

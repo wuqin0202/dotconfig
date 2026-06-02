@@ -71,6 +71,9 @@ export KERAS_HOME=${XDG_CACHE_HOME}/keras
 # mysql
 export MYSQL_HISTFILE=${XDG_DATA_HOME}/mysql/mysql_history
 
+# atuin
+export ATUIN_DB_PATH=${XDG_DATA_HOME}/atuin/zsh-history.db
+
 # wget
 export WGETRC=${XDG_CONFIG_HOME}/wget/wgetrc
 
