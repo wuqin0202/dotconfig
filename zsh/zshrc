@@ -39,6 +39,7 @@ eval "$(atuin init zsh --disable-up-arrow)"
 [[ -f $HOME/miniforge3/etc/profile.d/conda.sh ]] && source $HOME/miniforge3/etc/profile.d/conda.sh
 [[ -d $HOME/.conda ]] && rm -rf $HOME/.conda
 
+bindkey -e
 bindkey '^U' backward-kill-line # Ctrl+U 删除光标之前的所有字符
 (( $+functions[_history_substring_search_config] )) && _history_substring_search_config
 

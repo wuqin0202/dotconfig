@@ -81,7 +81,7 @@ export WGETRC=${XDG_CONFIG_HOME}/wget/wgetrc
 # export QT_DEBUG_PLUGINS=1 # qt debug模式，显示更多报错信息
 
 # PATH
-export PATH="$GOBIN:$HOME/.local/bin:$PATH"
+export PATH="$GOBIN:$HOME/.local/bin:$XDG_DATA_HOME/npm/bin:$PATH"
 
 # huggingface
 export HF_ENDPOINT=https://hf-mirror.com # huggingface 镜像
