@@ -4,6 +4,10 @@ fi
 
 bindkey -e
 bindkey '^U' backward-kill-line # Ctrl+U 删除光标之前的所有字符
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;3D' backward-word
+bindkey '^[[1;3C' forward-word
 
 source $ZDOTDIR/envs.zsh
 source $ZDOTDIR/alias.zsh
